@@ -24,7 +24,7 @@ wfuzz -c -z range,0-100 -u http://[ip redacted]/data/FUZZ
 This revealed that there was a page at `/data/0`. Clicking the download button on `/data/1` led to `/download/1` and downloaded a `.pcap` file, so I navigated to `/download/0` and retrieved the capture there.
 
 ## Packet Capture Analysis
-Opening the file in Wireshark revealed credentials in unencrypted FTP traffic. Standard FTP sends passwords in clear text ([RFC 2577](https://www.rfc-editor.org/rfc/rfc2577.html)).
+Opening the file in Wireshark revealed credentials in unencrypted FTP traffic.
 
 ## Initial Access
 I used the discovered credentials to log into FTP and download the user flag in `user.txt`.
@@ -45,9 +45,11 @@ This showed that `/usr/bin/python3.8` had the `CAP_SETUID` file capability. That
 I retrieved the root flag from `/root/root.txt`.
 
 ## Findings and Remediation
-- **Exposed packet captures:** The numbered capture endpoints exposed a PCAP containing credentials. Restrict each capture and download to authorized users with server-side access checks; changing an ID must not bypass authorization ([OWASP IDOR guidance](https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html)).
-- **Plaintext credentials and credential reuse:** FTP exposed credentials in clear text, and the same credentials worked for SSH. Use an encrypted alternative to FTP and avoid reusing credentials across services ([RFC 2577](https://www.rfc-editor.org/rfc/rfc2577.html)).
-- **Excessive Python capability:** Python had `CAP_SETUID`, allowing privilege escalation. Remove that capability unless there is a specific need for it, and review other file capabilities ([Linux setuid manual](https://www.man7.org/linux/man-pages/man2/setuid.2.html)).
+
+- **Exposed packet captures:** The numbered capture endpoints exposed a PCAP containing credentials. Restrict each capture and download to authorized users with server-side access checks; changing an ID must not bypass authorization.
+  
+- **Plaintext credentials and credential reuse:** FTP exposed credentials in clear text, and the same credentials worked for SSH.
+- **Excessive Python capability:** Python had `CAP_SETUID`, allowing privilege escalation. Remove that capability unless there is a specific need for it, and review other file capabilities
 
 ## Lessons Learned
-Small weaknesses can form an attack chain: access to a packet capture exposed credentials, those credentials worked on more than one service, and an excessive file capability allowed escalation to root. Checking file capabilities was important to finding the privilege-escalation path, rather than looking only for setuid permission bits.
+Small weaknesses can form an attack chain: access to a packet capture exposed credentials, those credentials worked on more than one service, and an excessive file capability allowed escalation to root. 
