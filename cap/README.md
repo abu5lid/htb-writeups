@@ -47,9 +47,9 @@ I retrieved the root flag from `/root/root.txt`.
 ## Findings and Remediation
 
 - **Exposed packet captures:** The numbered capture endpoints exposed a PCAP containing credentials. Restrict each capture and download to authorized users with server-side access checks; changing an ID must not bypass authorization.
-- 
+  
 - **Plaintext credentials and credential reuse:** FTP exposed credentials in clear text, and the same credentials worked for SSH. Replace plaintext FTP with an encrypted file-transfer service.
-- 
+  
 - **Excessive Python capability:** Python had `CAP_SETUID`, allowing privilege escalation. Remove that capability unless there is a specific need for it, and review other file capabilities.
 
 ## Lessons Learned
